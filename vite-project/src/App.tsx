@@ -5,7 +5,15 @@ import './App.css';
 function App() {
   const [color, setColor] = useState(""); 
   const [answers, setAnswers] = useState<string[]>([]);
+  const [result, setResult] = useState<Result | undefined>(undefined);
 
+  const generateColors = () => {
+    const actualColor = getRandomColor();
+      setColor(actualColor);
+      setAnswers([actualColor, getRandomColor(), getRandomColor()].sort(() => 0.5 - Math.random()
+      )
+    );
+  }
 
   const getRandomColor = () => {
     const digits =[ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F", ];
@@ -18,15 +26,35 @@ function App() {
       return `#${color}`;
   };
 
+  enum Result {
+    Correct,
+    Wrong,
+  }
+
   useEffect(() => {
-    const actualColor = getRandomColor();
-    setColor(actualColor);
-    setAnswers([actualColor, getRandomColor(), getRandomColor()].sort(() => 0.5 - Math.random()));
+    generateColors();
   }, []);
+
+  const handleAnswerClicked = (answer: string) => {
+    if (answer === color) {
+      setResult(Result.Correct);
+      generateColors();
+    } else {
+      setResult(Result.Wrong);
+    }
+  }
 
   return ( 
   <div className="App">
-    <div className='guess-me' style={{ background: color }}></div>
+    <div className='col'>
+      <div className='guess-me' style={{ background: color }}></div>
+
+      {answers.map(answer => (
+        <button onClick={() => handleAnswerClicked(answer)} key={answer}>{answer}</button>
+      ))}
+      {result === Result.Correct && <div className='correct'>Correct!</div>}
+      {result === Result.Wrong && <div className='wrong'>Wrong Answer</div>}
+    </div>
   </div>
   );
 } 
